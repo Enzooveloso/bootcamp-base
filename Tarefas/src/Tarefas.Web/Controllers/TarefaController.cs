@@ -21,21 +21,27 @@ namespace Tarefas.Web.Controllers
         
         public IActionResult Details(int id)
         {
-            var tarefa = listaDeTarefas.Find(tarefa => tarefa.Id == id);
-            return View(tarefa);
-        }
+            var tarefaDAO = new TarefaDAO();
+            var tarefaDTO = tarefaDAO.Consultar(id);
 
-        public IActionResult Index()
-        {            
-            return View(listaDeTarefas);
+            var tarefa = new Tarefa()
+            {
+                Id = tarefaDTO.Id,
+                Titulo = tarefaDTO.Titulo,
+                Descricao = tarefaDTO.Descricao,
+                Concluida = tarefaDTO.Concluida
+            };
+            //var tarefa = listaDeTarefas.Find(tarefa => tarefa.Id == id);
+            return View(tarefa);
         }
 
         public IActionResult Create()
         {
-            return View();
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
+
         public IActionResult Create(Tarefa tarefa)
         {
             var tarefaDTO = new TarefaDTO 
@@ -47,8 +53,43 @@ namespace Tarefas.Web.Controllers
 
             var tarefaDAO = new TarefaDAO();
             tarefaDAO.Criar(tarefaDTO);
+             
 
             return View();
+        }
+        public IActionResult Update()
+        {
+            var tarefaDTO = new TarefaDTO
+            {
+                Id = tarefaDTO.Id,
+                Titulo = tarefaDTO.Titulo,
+                Descricao = tarefaDTO.Descricao,
+                Concluida = tarefaDTO.Concluida
+            };
+
+            var tarefaDAO = new TarefaDAO();
+            tarefaDAO.Atualizar(tarefaDTO);
+
+            return RedirectToAction("Index");
+        }
+        public IActionResult Index()
+        {
+            var tarefaDAO = new TarefaDAO();
+            var listaDeTarefasDTO = tarefaDAO.Consultar();
+
+            listaDeTarefas = new List<Tarefa>();
+
+            foreach (var tarefaDTO in listaDeTarefasDTO)
+            {
+                listaDeTarefas.Add(new Tarefa()
+                {
+                    Id = tarefaDTO.Id,
+                    Titulo = tarefaDTO.Titulo,
+                    Descricao = tarefaDTO.Descricao,
+                    Concluida = tarefaDTO.Concluida
+                });
+            }
+            return View(listaDeTarefas);
         }
     }
 }
